@@ -245,6 +245,16 @@
             font-size: 1.3em;
             font-weight: bold;
         }
+        
+        .answer-display {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 10px 15px;
+            margin-top: 8px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9em;
+            color: #2d3748;
+        }
     </style>
 </head>
 <body>
@@ -294,50 +304,67 @@
                 <label for="animal">
                     <span class="category-icon">🐾</span>Animal
                 </label>
-                <input type="text" id="animal" name="animal" placeholder="Ex: Aigle, Antilope..." disabled>
+                <input type="text" id="animal" name="animal" disabled>
+                <div id="answer-animal" class="answer-display" style="display: none;"></div>
             </div>
             
             <div class="form-group">
                 <label for="celebrity">
                     <span class="category-icon">⭐</span>Nom de célébrité (nom de famille)
                 </label>
-                <input type="text" id="celebrity" name="celebrity" placeholder="Ex: Aznavour, Adjani..." disabled>
+                <input type="text" id="celebrity" name="celebrity" disabled>
+                <div id="answer-celebrity" class="answer-display" style="display: none;"></div>
             </div>
             
             <div class="form-group">
                 <label for="job">
                     <span class="category-icon">💼</span>Métier
                 </label>
-                <input type="text" id="job" name="job" placeholder="Ex: Architecte, Avocat..." disabled>
+                <input type="text" id="job" name="job" disabled>
+                <div id="answer-job" class="answer-display" style="display: none;"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="monument">
+                    <span class="category-icon">🏛️</span>Monument
+                </label>
+                <input type="text" id="monument" name="monument" disabled>
+                <div id="answer-monument" class="answer-display" style="display: none;"></div>
             </div>
             
             <div class="form-group">
                 <label for="fruit">
                     <span class="category-icon">🍎</span>Fruits-légumes
                 </label>
-                <input type="text" id="fruit" name="fruit" placeholder="Ex: Abricot, Artichaut..." disabled>
+                <input type="text" id="fruit" name="fruit" disabled>
+                <div id="answer-fruit" class="answer-display" style="display: none;"></div>
             </div>
             
             <div class="form-group">
                 <label for="object">
                     <span class="category-icon">🎯</span>Objet
                 </label>
-                <input type="text" id="object" name="object" placeholder="Ex: Aspirateur, Agrafeuse..." disabled>
+                <input type="text" id="object" name="object" disabled>
+                <div id="answer-object" class="answer-display" style="display: none;"></div>
             </div>
             
             <div class="form-group">
                 <label for="sport">
                     <span class="category-icon">⚽</span>Sport
                 </label>
-                <input type="text" id="sport" name="sport" placeholder="Ex: Athlétisme, Aviron..." disabled>
+                <input type="text" id="sport" name="sport" disabled>
+                <div id="answer-sport" class="answer-display" style="display: none;"></div>
             </div>
             
             <div class="btn-container">
                 <button type="button" class="btn btn-start" onclick="startGame()" id="startBtn">Commencer</button>
                 <button type="button" class="btn" onclick="validateForm()" id="validateBtn" disabled>Valider</button>
                 <button type="button" class="btn btn-reset" onclick="resetGame()">Nouvelle Partie</button>
+                <button type="button" class="btn" onclick="showAnswers()" id="showAnswersBtn" style="display: none; margin-top: 20px;">Voir les réponses</button>
             </div>
         </form>
+        
+
         
         <div id="scoreDisplay" class="score-display" style="display: none;">
             <h3>Résultat pour la lettre <span id="roundLetter"></span>:</h3>
@@ -352,6 +379,7 @@
 
     <script>
         let currentLetter = '';
+        let playedLetter = '';
         let timer = 30;
         let timerInterval = null;
         let gameActive = false;
@@ -360,32 +388,32 @@
         
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         const examples = {
-            'A': {animal: 'Aigle, Antilope', celebrity: 'Aznavour, Adjani', job: 'Architecte, Avocat', fruit: 'Abricot, Artichaut', object: 'Aspirateur, Agrafeuse', sport: 'Athlétisme, Aviron'},
-            'B': {animal: 'Baleine, Bison', celebrity: 'Belmondo, Bardot', job: 'Boulanger, Banquier', fruit: 'Banane, Brocoli', object: 'Brosse, Bouteille', sport: 'Basket, Boxe'},
-            'C': {animal: 'Chat, Cheval', celebrity: 'Clooney, Cotillard', job: 'Cuisinier, Chirurgien', fruit: 'Cerise, Carotte', object: 'Chaise, Clé', sport: 'Cyclisme, Cricket'},
-            'D': {animal: 'Dauphin, Dragon', celebrity: 'Delon, Deneuve', job: 'Dentiste, Directeur', fruit: 'Datte, Datte', object: 'Dictionnaire, Dé', sport: 'Danse, Diving'},
-            'E': {animal: 'Éléphant, Écureuil', celebrity: 'Eastwood, Efron', job: 'Électricien, Enseignant', fruit: 'Épinard, Endive', object: 'Échelle, Épée', sport: 'Équitation, Escalade'},
-            'F': {animal: 'Faucon, Fourmi', celebrity: 'Ford, Fonda', job: 'Fleuriste, Fermier', fruit: 'Fraise, Fève', object: 'Fourchette, Fleur', sport: 'Football, Fléchettes'},
-            'G': {animal: 'Girafe, Gorille', celebrity: 'Gere, Garbo', job: 'Garagiste, Garde', fruit: 'Grenade, Gingembre', object: 'Guitare, Gant', sport: 'Golf, Gymnastique'},
-            'H': {animal: 'Hippopotame, Hérisson', celebrity: 'Hanks, Hepburn', job: 'Historien, Hôtesse', fruit: 'Haricot, Herbe', object: 'Horloge, Hache', sport: 'Hockey, Handball'},
-            'I': {animal: 'Iguane, Insecte', celebrity: 'Iglesias, Irons', job: 'Infirmier, Ingénieur', fruit: 'Igname, Iris', object: 'Instrument, Île', sport: 'Icebergs, Ironman'},
-            'J': {animal: 'Jaguar, Jument', celebrity: 'Jackson, Jolie', job: 'Jardinier, Juge', fruit: 'Jasmin, Jujube', object: 'Jeu, Journal', sport: 'Judo, Javelot'},
-            'K': {animal: 'Koala, Kangourou', celebrity: 'Kidman, Keaton', job: 'Kinésithérapeute, Kiosquier', fruit: 'Kiwi, Kale', object: 'Kayak, Klaxon', sport: 'Karaté, Kitesurf'},
-            'L': {animal: 'Lion, Loup', celebrity: 'Lawrence, Lopez', job: 'Libraire, Livreur', fruit: 'Laitue, Lime', object: 'Livre, Lampe', sport: 'Lutte, Luge'},
-            'M': {animal: 'Mouton, Moustique', celebrity: 'Monroe, McConaughey', job: 'Médecin, Musicien', fruit: 'Melon, Mangue', object: 'Miroir, Montre', sport: 'Marathon, Moto'},
-            'N': {animal: 'Nounours, Narval', celebrity: 'Newman, Nicholson', job: 'Nutritionniste, Notaire', fruit: 'Noisette, Navet', object: 'Nœud, Nid', sport: 'Natation, Netball'},
-            'O': {animal: 'Ours, Otarie', celebrity: 'Olivier, Osment', job: 'Ouvrier, Opticien', fruit: 'Orange, Olive', object: 'Ordinateur, Oreiller', sport: 'Olympique, Orientation'},
-            'P': {animal: 'Panda, Pingouin', celebrity: 'Pitt, Pfeiffer', job: 'Plombier, Pilote', fruit: 'Pomme, Poireau', object: 'Peigne, Papier', sport: 'Ping-pong, Polo'},
-            'Q': {animal: 'Quetzal, Quokka', celebrity: 'Quinn, Quaid', job: 'Quincaillier, Quidam', fruit: 'Quetsche, Quinoa', object: 'Queue, Quille', sport: 'Quidditch, Quad'},
-            'R': {animal: 'Renard, Rhinocéros', celebrity: 'Roberts, Redford', job: 'Réparateur, Radiologue', fruit: 'Raisin, Radis', object: 'Radio, Règle', sport: 'Rugby, Rameur'},
-            'S': {animal: 'Singe, Serpent', celebrity: 'Streep, Stallone', job: 'Secrétaire, Sculpteur', fruit: 'Salade, Soja', object: 'Stylo, Sac', sport: 'Ski, Surf'},
-            'T': {animal: 'Tigre, Tortue', celebrity: 'Travolta, Theron', job: 'Tailleur, Traducteur', fruit: 'Tomate, Thym', object: 'Table, Téléphone', sport: 'Tennis, Tir'},
-            'U': {animal: 'Urubu, Unau', celebrity: 'Ullman, Underwood', job: 'Urgentiste, Urbaniste', fruit: 'Ume, Ugli', object: 'Urne, Uniforme', sport: 'Ultimate, Ultramarathon'},
-            'V': {animal: 'Vache, Vipère', celebrity: 'Voight, Vergara', job: 'Vétérinaire, Vendeur', fruit: 'Vanille, Vignes', object: 'Verre, Voiture', sport: 'Volley, Vélo'},
-            'W': {animal: 'Wallaby, Wombat', celebrity: 'Washington, Willis', job: 'Webmaster, Warrior', fruit: 'Wasabi, Walnut', object: 'Wifi, Wagon', sport: 'Wakeboard, Wrestling'},
-            'X': {animal: 'Xérus, Xylocope', celebrity: 'Xavier, Xzibit', job: 'Xylographe, Xerus', fruit: 'Ximenia, Xigua', object: 'Xylophone, Xbox', sport: 'Xball, Xtreme'},
-            'Y': {animal: 'Yak, Yapok', celebrity: 'Young, Yeoh', job: 'Yogi, Youtuber', fruit: 'Yuzu, Yam', object: 'Yo-yo, Yacht', sport: 'Yoga, Yachting'},
-            'Z': {animal: 'Zèbre, Zébu', celebrity: 'Zellweger, Zidane', job: 'Zoologue, Zingueur', fruit: 'Zeste, Zucchini', object: 'Zip, Zone', sport: 'Zumba, Zorbing'}
+            'A': {animal: 'Aigle, Antilope', celebrity: 'Aznavour, Adjani', job: 'Architecte, Avocat', fruit: 'Abricot, Artichaut', object: 'Aspirateur, Agrafeuse', sport: 'Athlétisme, Aviron', monument: 'Arc de Triomphe, Acropole'},
+            'B': {animal: 'Baleine, Bison', celebrity: 'Belmondo, Bardot', job: 'Boulanger, Banquier', fruit: 'Banane, Brocoli', object: 'Brosse, Bouteille', sport: 'Basket, Boxe', monument: 'Big Ben, Basilique'},
+            'C': {animal: 'Chat, Cheval', celebrity: 'Clooney, Cotillard', job: 'Cuisinier, Chirurgien', fruit: 'Cerise, Carotte', object: 'Chaise, Clé', sport: 'Cyclisme, Cricket', monument: 'Colisée, Château'},
+            'D': {animal: 'Dauphin, Dragon', celebrity: 'Delon, Deneuve', job: 'Dentiste, Directeur', fruit: 'Datte, Datte', object: 'Dictionnaire, Dé', sport: 'Danse, Diving', monument: 'Dôme, Donjon'},
+            'E': {animal: 'Éléphant, Écureuil', celebrity: 'Eastwood, Efron', job: 'Électricien, Enseignant', fruit: 'Épinard, Endive', object: 'Échelle, Épée', sport: 'Équitation, Escalade', monument: 'Empire State, Église'},
+            'F': {animal: 'Faucon, Fourmi', celebrity: 'Ford, Fonda', job: 'Fleuriste, Fermier', fruit: 'Fraise, Fève', object: 'Fourchette, Fleur', sport: 'Football, Fléchettes', monument: 'Fontaine, Forteresse'},
+            'G': {animal: 'Girafe, Gorille', celebrity: 'Gere, Garbo', job: 'Garagiste, Garde', fruit: 'Grenade, Gingembre', object: 'Guitare, Gant', sport: 'Golf, Gymnastique', monument: 'Grande Muraille, Grotte'},
+            'H': {animal: 'Hippopotame, Hérisson', celebrity: 'Hanks, Hepburn', job: 'Historien, Hôtesse', fruit: 'Haricot, Herbe', object: 'Horloge, Hache', sport: 'Hockey, Handball', monument: 'Hôtel de ville, Hermitage'},
+            'I': {animal: 'Iguane, Insecte', celebrity: 'Iglesias, Irons', job: 'Infirmier, Ingénieur', fruit: 'Igname, Iris', object: 'Instrument, Île', sport: 'Icebergs, Ironman', monument: 'Institut, Invalides'},
+            'J': {animal: 'Jaguar, Jument', celebrity: 'Jackson, Jolie', job: 'Jardinier, Juge', fruit: 'Jasmin, Jujube', object: 'Jeu, Journal', sport: 'Judo, Javelot', monument: 'Jardin, Justice (Palais)'},
+            'K': {animal: 'Koala, Kangourou', celebrity: 'Kidman, Keaton', job: 'Kinésithérapeute, Kiosquier', fruit: 'Kiwi, Kale', object: 'Kayak, Klaxon', sport: 'Karaté, Kitesurf', monument: 'Kremlin, Krak'},
+            'L': {animal: 'Lion, Loup', celebrity: 'Lawrence, Lopez', job: 'Libraire, Livreur', fruit: 'Laitue, Lime', object: 'Livre, Lampe', sport: 'Lutte, Luge', monument: 'Louvre, Liberté (Statue)'},
+            'M': {animal: 'Mouton, Moustique', celebrity: 'Monroe, McConaughey', job: 'Médecin, Musicien', fruit: 'Melon, Mangue', object: 'Miroir, Montre', sport: 'Marathon, Moto', monument: 'Machu Picchu, Mosquée'},
+            'N': {animal: 'Nounours, Narval', celebrity: 'Newman, Nicholson', job: 'Nutritionniste, Notaire', fruit: 'Noisette, Navet', object: 'Nœud, Nid', sport: 'Natation, Netball', monument: 'Notre-Dame, Nécropole'},
+            'O': {animal: 'Ours, Otarie', celebrity: 'Olivier, Osment', job: 'Ouvrier, Opticien', fruit: 'Orange, Olive', object: 'Ordinateur, Oreiller', sport: 'Olympique, Orientation', monument: 'Opéra, Obélisque'},
+            'P': {animal: 'Panda, Pingouin', celebrity: 'Pitt, Pfeiffer', job: 'Plombier, Pilote', fruit: 'Pomme, Poireau', object: 'Peigne, Papier', sport: 'Ping-pong, Polo', monument: 'Pyramide, Panthéon'},
+            'Q': {animal: 'Quetzal, Quokka', celebrity: 'Quinn, Quaid', job: 'Quincaillier, Quidam', fruit: 'Quetsche, Quinoa', object: 'Queue, Quille', sport: 'Quidditch, Quad', monument: 'Quai, Quartier'},
+            'R': {animal: 'Renard, Rhinocéros', celebrity: 'Roberts, Redford', job: 'Réparateur, Radiologue', fruit: 'Raisin, Radis', object: 'Radio, Règle', sport: 'Rugby, Rameur', monument: 'Rocher, Rotonde'},
+            'S': {animal: 'Singe, Serpent', celebrity: 'Streep, Stallone', job: 'Secrétaire, Sculpteur', fruit: 'Salade, Soja', object: 'Stylo, Sac', sport: 'Ski, Surf', monument: 'Sphinx, Sagrada Familia'},
+            'T': {animal: 'Tigre, Tortue', celebrity: 'Travolta, Theron', job: 'Tailleur, Traducteur', fruit: 'Tomate, Thym', object: 'Table, Téléphone', sport: 'Tennis, Tir', monument: 'Tour Eiffel, Temple'},
+            'U': {animal: 'Urubu, Unau', celebrity: 'Ullman, Underwood', job: 'Urgentiste, Urbaniste', fruit: 'Ume, Ugli', object: 'Urne, Uniforme', sport: 'Ultimate, Ultramarathon', monument: 'Université, Unesco'},
+            'V': {animal: 'Vache, Vipère', celebrity: 'Voight, Vergara', job: 'Vétérinaire, Vendeur', fruit: 'Vanille, Vignes', object: 'Verre, Voiture', sport: 'Volley, Vélo', monument: 'Versailles, Vatican'},
+            'W': {animal: 'Wallaby, Wombat', celebrity: 'Washington, Willis', job: 'Webmaster, Warrior', fruit: 'Wasabi, Walnut', object: 'Wifi, Wagon', sport: 'Wakeboard, Wrestling', monument: 'Westminster, Wall'},
+            'X': {animal: 'Xérus, Xylocope', celebrity: 'Xavier, Xzibit', job: 'Xylographe, Xerus', fruit: 'Ximenia, Xigua', object: 'Xylophone, Xbox', sport: 'Xball, Xtreme', monument: 'Xian, Xi\'an'},
+            'Y': {animal: 'Yak, Yapok', celebrity: 'Young, Yeoh', job: 'Yogi, Youtuber', fruit: 'Yuzu, Yam', object: 'Yo-yo, Yacht', sport: 'Yoga, Yachting', monument: 'Yosemite, Yasukuni'},
+            'Z': {animal: 'Zèbre, Zébu', celebrity: 'Zellweger, Zidane', job: 'Zoologue, Zingueur', fruit: 'Zeste, Zucchini', object: 'Zip, Zone', sport: 'Zumba, Zorbing', monument: 'Ziggurat, Zen (Temple)'}
         };
         
         function selectLetter(letter) {
@@ -393,7 +421,6 @@
             
             currentLetter = letter;
             document.getElementById('currentLetter').textContent = letter;
-            updatePlaceholders(letter);
             
             // Highlight selected letter
             document.querySelectorAll('.alphabet-letter').forEach(btn => {
@@ -420,14 +447,30 @@
             });
         }
         
-        function updatePlaceholders(letter) {
-            const example = examples[letter] || examples['A'];
-            document.getElementById('animal').placeholder = `Ex: ${example.animal}...`;
-            document.getElementById('celebrity').placeholder = `Ex: ${example.celebrity}...`;
-            document.getElementById('job').placeholder = `Ex: ${example.job}...`;
-            document.getElementById('fruit').placeholder = `Ex: ${example.fruit}...`;
-            document.getElementById('object').placeholder = `Ex: ${example.object}...`;
-            document.getElementById('sport').placeholder = `Ex: ${example.sport}...`;
+        function showAnswers() {
+            const example = examples[playedLetter] || examples['A'];
+            
+            // Show answers below each input field
+            document.getElementById('answer-animal').innerHTML = `<strong>Réponse:</strong> ${example.animal}`;
+            document.getElementById('answer-animal').style.display = 'block';
+            
+            document.getElementById('answer-celebrity').innerHTML = `<strong>Réponse:</strong> ${example.celebrity}`;
+            document.getElementById('answer-celebrity').style.display = 'block';
+            
+            document.getElementById('answer-job').innerHTML = `<strong>Réponse:</strong> ${example.job}`;
+            document.getElementById('answer-job').style.display = 'block';
+            
+            document.getElementById('answer-monument').innerHTML = `<strong>Réponse:</strong> ${example.monument}`;
+            document.getElementById('answer-monument').style.display = 'block';
+            
+            document.getElementById('answer-fruit').innerHTML = `<strong>Réponse:</strong> ${example.fruit}`;
+            document.getElementById('answer-fruit').style.display = 'block';
+            
+            document.getElementById('answer-object').innerHTML = `<strong>Réponse:</strong> ${example.object}`;
+            document.getElementById('answer-object').style.display = 'block';
+            
+            document.getElementById('answer-sport').innerHTML = `<strong>Réponse:</strong> ${example.sport}`;
+            document.getElementById('answer-sport').style.display = 'block';
         }
         
         function startGame() {
@@ -437,6 +480,7 @@
             }
             
             gameActive = true;
+            playedLetter = currentLetter;
             timer = 30;
             
             // Enable form inputs
@@ -450,6 +494,7 @@
             // Update buttons
             document.getElementById('startBtn').disabled = true;
             document.getElementById('validateBtn').disabled = false;
+            document.getElementById('showAnswersBtn').style.display = 'none';
             
             // Update status
             document.getElementById('gameStatus').className = 'game-status playing';
@@ -460,6 +505,12 @@
             
             // Hide previous results
             document.getElementById('scoreDisplay').style.display = 'none';
+            document.getElementById('answersDisplay').style.display = 'none';
+            
+            // Hide all answer displays
+            document.querySelectorAll('.answer-display').forEach(display => {
+                display.style.display = 'none';
+            });
             
             // Focus on first input
             document.getElementById('animal').focus();
@@ -496,6 +547,7 @@
             // Update buttons
             document.getElementById('validateBtn').disabled = true;
             document.getElementById('startBtn').disabled = false;
+            document.getElementById('showAnswersBtn').style.display = 'inline-block';
             
             // Update status
             document.getElementById('gameStatus').className = 'game-status finished';
@@ -542,8 +594,8 @@
             // Update displays
             document.getElementById('roundLetter').textContent = currentLetter;
             document.getElementById('scoreText').innerHTML = `
-                Champs remplis : ${filledCount}/6<br>
-                Mots valides (commençant par ${currentLetter}) : ${validCount}/6<br>
+                Champs remplis : ${filledCount}/7<br>
+                Mots valides (commençant par ${currentLetter}) : ${validCount}/7<br>
                 <strong>Score de la manche : ${roundScore} points</strong>
             `;
             document.getElementById('scoreDisplay').style.display = 'block';
@@ -557,6 +609,7 @@
             clearInterval(timerInterval);
             gameActive = false;
             currentLetter = '';
+            playedLetter = '';
             timer = 30;
             totalScore = 0;
             roundsPlayed = 0;
@@ -579,6 +632,7 @@
             // Reset buttons
             document.getElementById('startBtn').disabled = true;
             document.getElementById('validateBtn').disabled = true;
+            document.getElementById('showAnswersBtn').style.display = 'none';
             
             // Reset alphabet selection
             document.querySelectorAll('.alphabet-letter').forEach(btn => {
@@ -588,6 +642,12 @@
             // Hide displays
             document.getElementById('scoreDisplay').style.display = 'none';
             document.getElementById('totalScoreDisplay').style.display = 'none';
+            document.getElementById('answersDisplay').style.display = 'none';
+            
+            // Hide all answer displays
+            document.querySelectorAll('.answer-display').forEach(display => {
+                display.style.display = 'none';
+            });
         }
         
         // Add real-time validation
