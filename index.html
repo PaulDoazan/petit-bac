@@ -357,7 +357,6 @@
             </div>
             
             <div class="btn-container">
-                <button type="button" class="btn btn-start" onclick="startGame()" id="startBtn">Commencer</button>
                 <button type="button" class="btn" onclick="validateForm()" id="validateBtn" disabled>Valider</button>
                 <button type="button" class="btn btn-reset" onclick="resetGame()">Nouvelle Partie</button>
                 <button type="button" class="btn" onclick="showAnswers()" id="showAnswersBtn" style="display: none; margin-top: 20px;">Voir les réponses</button>
@@ -428,8 +427,8 @@
             });
             event.target.classList.add('selected');
             
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('gameStatus').textContent = `Lettre ${letter} sélectionnée. Cliquez sur "Commencer" pour démarrer le timer.`;
+            // Start the game automatically
+            startGame();
         }
         
         function selectRandomLetter() {
@@ -492,7 +491,6 @@
             });
             
             // Update buttons
-            document.getElementById('startBtn').disabled = true;
             document.getElementById('validateBtn').disabled = false;
             document.getElementById('showAnswersBtn').style.display = 'none';
             
@@ -546,7 +544,6 @@
             
             // Update buttons
             document.getElementById('validateBtn').disabled = true;
-            document.getElementById('startBtn').disabled = false;
             document.getElementById('showAnswersBtn').style.display = 'inline-block';
             
             // Update status
@@ -630,7 +627,6 @@
             });
             
             // Reset buttons
-            document.getElementById('startBtn').disabled = true;
             document.getElementById('validateBtn').disabled = true;
             document.getElementById('showAnswersBtn').style.display = 'none';
             
